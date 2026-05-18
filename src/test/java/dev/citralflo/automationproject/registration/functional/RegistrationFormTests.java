@@ -3,7 +3,6 @@ package dev.citralflo.automationproject.registration.functional;
 import dev.citralflo.BaseTest;
 import dev.citralflo.components.LoginForm;
 import dev.citralflo.components.RegisterForm;
-import dev.citralflo.models.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;

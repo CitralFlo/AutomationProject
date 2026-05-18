@@ -6,7 +6,7 @@ import dev.citralflo.models.UserData;
 
 public class RegisterForm {
 
-    private final Locator registerForm;
+    private final Locator registerFormLocator;
 
     public enum Field {
         FIRST_NAME("customer.firstName"),
@@ -34,11 +34,11 @@ public class RegisterForm {
 
 
     public RegisterForm(Page page) {
-        this.registerForm = page.locator("#customerForm");
+        this.registerFormLocator = page.locator("#customerForm");
     }
 
     public void fillField(Field field, String value) {
-        this.registerForm.locator("id=" + field.getId()).fill(value);
+        this.registerFormLocator.locator("id=" + field.getId()).fill(value);
     }
 
     public void fill(UserData user) {
@@ -57,11 +57,11 @@ public class RegisterForm {
 
 
     public void submit() {
-        this.registerForm.locator("input[value='Register']").click();
+        this.registerFormLocator.locator("input[value='Register']").click();
     }
 
     public String getFieldError(Field field) {
-        Locator errorLocator = this.registerForm.locator("id=" + field.getId() + ".errors");
+        Locator errorLocator = this.registerFormLocator.locator("id=" + field.getId() + ".errors");
 
         if (errorLocator.count() == 0) {
             return "";
@@ -75,7 +75,7 @@ public class RegisterForm {
     }
 
     public boolean isFieldErrorVisible(Field field) {
-        return this.registerForm.locator("id=" + field.getId() + ".errors").isVisible();
+        return this.registerFormLocator.locator("id=" + field.getId() + ".errors").isVisible();
     }
 
 }
