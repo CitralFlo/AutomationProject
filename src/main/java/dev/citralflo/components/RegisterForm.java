@@ -6,64 +6,76 @@ import dev.citralflo.models.UserData;
 
 public class RegisterForm {
 
-    private final Page page;
+    private final Locator registerForm;
 
-    private final Locator firstNameInput;
-    private final Locator lastNameInput;
-    private final Locator addressInput;
-    private final Locator cityInput;
-    private final Locator stateInput;
-    private final Locator zipCodeInput;
-    private final Locator phoneInput;
-    private final Locator ssnInput;
-    private final Locator usernameInput;
-    private final Locator passwordInput;
-    private final Locator confirmPasswordInput;
-    private final Locator registerButton;
+    public enum Field {
+        FIRST_NAME("customer.firstName"),
+        LAST_NAME("customer.lastName"),
+        ADDRESS("customer.address.street"),
+        CITY("customer.address.city"),
+        STATE("customer.address.state"),
+        ZIP_CODE("customer.address.zipCode"),
+        PHONE("customer.phoneNumber"),
+        SSN("customer.ssn"),
+        USERNAME("customer.username"),
+        PASSWORD("customer.password"),
+        CONFIRM_PASSWORD("repeatedPassword");
+
+        private final String id;
+
+        Field(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
 
     public RegisterForm(Page page) {
-        this.page = page;
+        this.registerForm = page.locator("#customerForm");
+    }
 
-        Locator registerForm = page.locator("#customerForm");
-
-        this.firstNameInput = registerForm.locator("id=customer.firstName");
-        this.lastNameInput = registerForm.locator("id=customer.lastName");
-        this.addressInput = registerForm.locator("id=customer.address.street");
-        this.cityInput = registerForm.locator("id=customer.address.city");
-        this.stateInput = registerForm.locator("id=customer.address.state");
-        this.zipCodeInput = registerForm.locator("id=customer.address.zipCode");
-        this.phoneInput = registerForm.locator("id=customer.phoneNumber");
-        this.ssnInput = registerForm.locator("id=customer.ssn");
-        this.usernameInput = registerForm.locator("id=customer.username");
-        this.passwordInput = registerForm.locator("id=customer.password");
-        this.confirmPasswordInput = registerForm.locator("id=repeatedPassword");
-        this.registerButton = registerForm.locator("input[value='Register']");
+    public void fillField(Field field, String value) {
+        this.registerForm.locator("id=" + field.getId()).fill(value);
     }
 
     public void fill(UserData user) {
-        this.firstNameInput.fill(user.firstName);
-        this.lastNameInput.fill(user.lastName);
-        this.addressInput.fill(user.address);
-        this.cityInput.fill(user.city);
-        this.stateInput.fill(user.state);
-        this.zipCodeInput.fill(user.zipCode);
-        this.phoneInput.fill(user.phone);
-        this.ssnInput.fill(user.ssn);
-        this.usernameInput.fill(user.username);
-        this.passwordInput.fill(user.password);
-        this.confirmPasswordInput.fill(user.password);
+        this.fillField(Field.FIRST_NAME, user.firstName);
+        this.fillField(Field.LAST_NAME, user.lastName);
+        this.fillField(Field.ADDRESS, user.address);
+        this.fillField(Field.CITY, user.city);
+        this.fillField(Field.STATE, user.state);
+        this.fillField(Field.ZIP_CODE, user.zipCode);
+        this.fillField(Field.PHONE, user.phone);
+        this.fillField(Field.SSN, user.ssn);
+        this.fillField(Field.USERNAME, user.username);
+        this.fillField(Field.PASSWORD, user.password);
+        this.fillField(Field.CONFIRM_PASSWORD, user.password);
     }
+
 
     public void submit() {
-        registerButton.click();
+        this.registerForm.locator("input[value='Register']").click();
     }
 
-    public String getErrorMessageForField(String fieldName) {
-        return page.locator("id=" + fieldName + ".errors").innerText();
+    public String getFieldError(Field field) {
+        Locator errorLocator = this.registerForm.locator("id=" + field.getId() + ".errors");
+
+        if (errorLocator.count() == 0) {
+            return "";
+        }
+
+        if (!errorLocator.isVisible()) {
+            return "";
+        }
+
+        return errorLocator.innerText();
     }
 
-    public void fillFirstName(String name) {
-        this.firstNameInput.fill(name);
+    public boolean isFieldErrorVisible(Field field) {
+        return this.registerForm.locator("id=" + field.getId() + ".errors").isVisible();
     }
 
 }
