@@ -3,10 +3,12 @@ package dev.citralflo.automationproject.registration.e2e;
 import dev.citralflo.BaseTest;
 import dev.citralflo.components.LoginForm;
 import dev.citralflo.components.RegisterForm;
+import dev.citralflo.components.SideBar;
 import dev.citralflo.models.UserData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RegistrationTest extends BaseTest {
@@ -16,6 +18,9 @@ class RegistrationTest extends BaseTest {
     @DisplayName("Successful registration of a new user")
     void registerUser() {
         UserData userData = new UserData();
+
+        System.out.println("Username: " + userData.username);
+        System.out.println("Password: " + userData.password);
 
         LoginForm loginForm = new LoginForm(page);
         loginForm.clickRegisterLink();
@@ -33,5 +38,13 @@ class RegistrationTest extends BaseTest {
         registerForm.submit();
 
         assertTrue(page.content().contains("Welcome"));
+
+        SideBar sideBar = new SideBar(page);
+
+        String firstAndLastName = userData.firstName + " " + userData.lastName;
+        String sideBarName = sideBar.getName();
+
+        assertEquals(firstAndLastName, sideBarName);
     }
+
 }
