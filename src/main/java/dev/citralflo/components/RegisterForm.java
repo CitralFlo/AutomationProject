@@ -6,6 +6,13 @@ import dev.citralflo.models.UserData;
 
 public class RegisterForm {
 
+    private static final String REGISTER_LOCATOR = "input[value='Register']";
+
+    private static final String ID_PREFIX = "id=";
+    private static final String ERROR_SELECTOR_SUFFIX = ".errors";
+
+    private static final String EMPTY_STRING = "";
+
     private final Locator registerFormLocator;
 
     public enum Field {
@@ -32,13 +39,12 @@ public class RegisterForm {
         }
     }
 
-
     public RegisterForm(Page page) {
         this.registerFormLocator = page.locator("#customerForm");
     }
 
     public void fillField(Field field, String value) {
-        this.registerFormLocator.locator("id=" + field.getId()).fill(value);
+        this.registerFormLocator.locator(ID_PREFIX + field.getId()).fill(value);
     }
 
     public void fill(UserData user) {
@@ -55,27 +61,26 @@ public class RegisterForm {
         this.fillField(Field.CONFIRM_PASSWORD, user.password);
     }
 
-
     public void submit() {
-        this.registerFormLocator.locator("input[value='Register']").click();
+        this.registerFormLocator.locator(REGISTER_LOCATOR).click();
     }
 
     public String getFieldError(Field field) {
-        Locator errorLocator = this.registerFormLocator.locator("id=" + field.getId() + ".errors");
+        Locator errorLocator = getErrorLocatorFor(field);
 
-        if (errorLocator.count() == 0) {
-            return "";
-        }
-
-        if (!errorLocator.isVisible()) {
-            return "";
+        if (errorLocator.count() == 0 || !errorLocator.isVisible()) {
+            return EMPTY_STRING;
         }
 
         return errorLocator.innerText();
     }
 
     public boolean isFieldErrorVisible(Field field) {
-        return this.registerFormLocator.locator("id=" + field.getId() + ".errors").isVisible();
+        return getErrorLocatorFor(field).isVisible();
     }
 
+    private Locator getErrorLocatorFor(Field field) {
+        String errorSelector = ID_PREFIX + field.getId() + ERROR_SELECTOR_SUFFIX;
+        return this.registerFormLocator.locator(errorSelector);
+    }
 }
