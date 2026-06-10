@@ -8,24 +8,52 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+
     steps:
-    - uses: actions/checkout@v4.2.2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4.3.0
-      with:
-        java-version: '21'
-        distribution: 'temurin'
+      - uses: actions/checkout@v4.2.2
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4.3.0
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: Install Playwright Browser Dependencies
-      run: npx playwright install-deps
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
-    - name: Run tests
-      run: ./gradlew test
+      - name: Cache Playwright Browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/build.gradle*', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Install Playwright Chromium & Dependencies (Cache Miss)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Missing OS Libraries Only (Cache Hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        # This ensures the step runs even if some tests fail (otherwise it would skip on failure)
+        if: always()
+        with:
+          files: |
+            **/build/test-results/test/*.xml
