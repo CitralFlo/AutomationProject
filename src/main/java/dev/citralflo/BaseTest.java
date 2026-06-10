@@ -20,8 +20,13 @@ public class BaseTest {
 
     @BeforeAll
     static void launchBrowser() {
+        boolean isCiEnvironment = System.getenv("CI") != null
+                                  && System.getenv("CI").equalsIgnoreCase("true");
+
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright
+                .chromium()
+                .launch(new BrowserType.LaunchOptions().setHeadless(isCiEnvironment));
     }
 
     @AfterAll
